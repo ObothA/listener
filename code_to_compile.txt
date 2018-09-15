@@ -1,0 +1,5 @@
+gcc -o makg2tcplistener  tcp10004listener.c -I/usr/include/mysql  -lmysqlclient -lz
+
+
+USE THIS PLEASE. IT CREATES AN EXECUTABLE AwsDataReceiver
+gcc -o AwsDatReceiver AwsDataReceiver.c  -I/usr/include/mysql  -lmysqlclient -lz -lpthread 

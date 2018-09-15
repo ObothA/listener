@@ -1,0 +1,104 @@
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/types.h>
+#include <string.h>
+
+#define AF_NET 2
+#define DATE_10M 0
+#define TIME_10M 1
+#define TIMESTAMP_10M 2
+#define GW_LAT_10M 3
+#define GW_LONG_10M 4
+#define V_MCU_10M 5
+#define V_IN_10M 6
+#define V_A1_10M 7
+#define V_A2_10M 8
+#define V_A3_10M 9
+
+#define TEN_M_KEY "TXT=makg2-10m"
+#define TWO_M_KEY "TXT=makg2-2m"
+#define GROUND_KEY "TXT=makg2-gnd"
+#define SINK_KEY "TXT=makg2-sink"
+
+#define GW_LAT_2M_KEY "GW_LAT"
+#define GW_LONG_2M_KEY "GW_LON"
+#define V_MCU_2M_KEY "V_MCU"
+#define V_IN_2M_KEY "V_IN"
+#define T_SHT2X_2M_KEY "T_SHT2X"
+#define RH_SHT2X_2M_KEY "RH_SHT2X"
+#define TTL_2M_KEY "TTL"
+#define RSSI_2M_KEY "RSSI"
+#define LQI_2M_KEY "LQI"
+
+struct two_meter_record{
+    char *date_2m;
+    char *time_2m; 
+    char *timestamp_2m;
+    char *gw_lat_2m; 
+    char *gw_long_2m;
+    float v_mcu_2m;
+    float v_in_2m;
+    float t_sht2x_2m;
+    float rh_sht2x_2m;
+    float ttl_2m;
+    float rssi_2m;
+    float 
+}
+
+int main(){
+    struct sockaddr_in addr,clientAddr;
+    struct two_meter_record two_meter_node_data;
+    unsigned int clientLen = sizeof(clientAddr);
+    int listen_status;
+    int socketId = socket(AF_NET,SOCK_STREAM,0);
+    int RCVBUFSIZE =256;
+    char buffer[RCVBUFSIZE];
+    addr.sin_family =AF_NET;
+    addr.sin_port = htons(10020);
+    addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    
+    int bind_status = bind(socketId, (struct sockadrr*) &addr, sizeof(addr));
+    
+    if(bind_status != -1){
+        printf("Binded successfully to port %d \n",addr.sin_port);
+        listen_status = listen(socketId, 128);
+        if(listen_status != -1){
+            printf("Now the server is listening \n");
+            int clientSockId = accept(socketId,(struct sockadrr *) &clientAddr,&clientLen);
+            
+            printf("The client socket id is %d\n",clientSockId);
+            int recvMsgSize;
+	   
+            if(clientSockId != -1){
+                while(1){
+                    recvMsgSize = recv(clientSockId, buffer, RCVBUFSIZE, 0);
+                    
+                    if(recvMsgSize>0){
+                       if(strstr(buffer,TEN_M_KEY)!=NULL){
+        	//when it's 10 meter
+	         printf("%s",buffer);
+    }
+    else if(strstr(buffer,TWO_M_KEY)!=NULL){
+        //when it's 2 meter
+         printf("%s",buffer);
+    }
+    else if(strstr(buffer,GROUND_KEY)!=NULL){
+        //when it's ground node
+         printf("%s",buffer);
+    }
+    else if(strstr(buffer,SINK_KEY)!=NULL){
+        //when it's sink node
+        printf("%s",buffer);
+    }
+                    }
+                }
+            }
+        }
+        else{
+            printf("Failed to listen\n");
+        }
+    }
+    
+    
+}
